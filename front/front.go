@@ -1,9 +1,20 @@
 package front
 
 import (
+	"embed"
+	"io/fs"
+	"log"
 	"net/http"
 )
 
+//go:embed static/*
+var static embed.FS
+
 func init() {
-	http.Handle("GET /", http.FileServer(http.Dir("front/static")))
+	serverRoot, err := fs.Sub(static, "static")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.Handle("GET /", http.FileServer(http.FS(serverRoot)))
 }
