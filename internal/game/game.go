@@ -1,7 +1,6 @@
 package game
 
 import (
-	"context"
 	"encoding/json"
 	"math/rand"
 	"time"
@@ -13,7 +12,7 @@ type Game struct {
 	Food   Food     `json:"food"`
 	Opts   Options  `json:"options"`
 
-	Start time.Time `json:"start"`
+	StartTime time.Time `json:"start"`
 }
 
 func NewGame(opts Options) *Game {
@@ -61,29 +60,12 @@ func (g *Game) ShuffleSnakes() {
 }
 
 func (g *Game) IsEnd() bool {
-	return time.Now().After(g.Start.Add(g.Opts.Duration))
+	return time.Now().After(g.StartTime.Add(g.Opts.Duration))
 }
 
-func (g *Game) Run(ctx context.Context, callback func()) {
-	g.ShuffleSnakes()
-	g.ReloadFood()
-	g.Start = time.Now()
-
-	ticker := time.NewTicker(g.Opts.FrameDuration)
-	defer ticker.Stop()
-	for !g.IsEnd() {
-		select {
-		case <-ticker.C:
-			g.Update()
-			callback()
-		case <-ctx.Done():
-			return
-		}
-	}
-}
-
-func (g *Game) JSON() ([]byte, error) {
-	return json.Marshal(g)
+func (g *Game) JSON() []byte {
+	data, _ := json.Marshal(g)
+	return data
 }
 
 func (g *Game) ReloadFood() {
@@ -91,4 +73,10 @@ func (g *Game) ReloadFood() {
 		rand.Intn(g.Field.W),
 		rand.Intn(g.Field.H),
 	}
+}
+
+func (g *Game) Start() {
+	g.ShuffleSnakes()
+	g.ReloadFood()
+	g.StartTime = time.Now()
 }

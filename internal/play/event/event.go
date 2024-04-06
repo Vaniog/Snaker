@@ -1,6 +1,7 @@
 package event
 
 import (
+	"encoding/json"
 	"github.com/Vaniog/Snaker/internal/game"
 )
 
@@ -15,4 +16,10 @@ type Rotate struct {
 }
 
 type GameStart struct {
+}
+
+func Parse[E Event](data []byte) (E, error) {
+	var e E
+	err := json.Unmarshal(data, &e)
+	return e, err
 }

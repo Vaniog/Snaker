@@ -1,13 +1,14 @@
 package server
 
 import (
+	"context"
 	"errors"
 	"math/rand"
 	"sync"
 	"time"
 )
 
-const hubLifetime = 10 * time.Minute
+const hubLifetime = 20 * time.Minute
 
 type Repository struct {
 	hubs map[HubID]*Hub
@@ -26,7 +27,7 @@ func (hr *Repository) FindHub() HubID {
 	defer hr.lock.Unlock()
 
 	for id, h := range hr.hubs {
-		if len(h.game.Snakes) != 2 {
+		if h.Room.IsOpen() {
 			return id
 		}
 	}
@@ -36,14 +37,15 @@ func (hr *Repository) FindHub() HubID {
 	h.ID = id
 	hr.hubs[id] = h
 
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(hubLifetime))
 	go func() {
 		time.Sleep(hubLifetime)
 		hr.lock.Lock()
 		defer hr.lock.Unlock()
 		delete(hr.hubs, id)
+		cancel()
 	}()
-
-	go h.Run()
+	go h.Run(ctx)
 	return id
 }
 

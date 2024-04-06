@@ -55,6 +55,5 @@ func ServePlay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	player := newPlayer(hub, conn)
-	hub.register <- player
+	hub.RegisterClient(conn)
 }
