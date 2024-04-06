@@ -24,7 +24,7 @@ func newHub() *Hub {
 }
 
 func (h *Hub) RegisterClient(conn *websocket.Conn) *Client {
-	c := &Client{conn: conn, hub: h}
+	c := &Client{conn: conn}
 	h.Register <- c
 	return c
 }
@@ -35,8 +35,7 @@ func (h *Hub) Run(ctx context.Context) {
 	for {
 		select {
 		case c := <-h.Register:
-			c.player = play.RegisterPlayer(c.hub.Room)
-			c.hub = h
+			c.player = play.RegisterPlayer(h.Room)
 			go c.readPump(ctx)
 			go c.writePump(ctx)
 		}

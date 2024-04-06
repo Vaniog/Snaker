@@ -23,7 +23,6 @@ const (
 )
 
 type Client struct {
-	hub    *Hub
 	conn   *websocket.Conn
 	player *play.Player
 }
