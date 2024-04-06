@@ -23,10 +23,6 @@ func NewRoom(g *game.Game) *Room {
 }
 
 func (r *Room) Run(ctx context.Context) {
-	const infTime = 1000000 * time.Hour
-	gameTicker := time.NewTicker(infTime)
-	defer gameTicker.Stop()
-
 	for {
 		select {
 		case p := <-r.Register:
@@ -36,9 +32,19 @@ func (r *Room) Run(ctx context.Context) {
 			p.snake = snake
 			go p.inputPump(ctx)
 			if len(r.players) == 2 {
-				gameTicker.Reset(r.game.Opts.FrameDuration)
-				r.game.Start()
+				goto PLAY
 			}
+		case <-ctx.Done():
+			return
+		}
+	}
+
+PLAY:
+	gameTicker := time.NewTicker(r.game.Opts.FrameDuration)
+	defer gameTicker.Stop()
+	r.game.Start()
+	for {
+		select {
 		case <-gameTicker.C:
 			r.gameLock.Lock()
 			r.game.Update()
