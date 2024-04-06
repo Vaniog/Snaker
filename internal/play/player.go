@@ -15,16 +15,13 @@ type Player struct {
 
 	Input  chan []byte
 	Output chan []byte
-
-	broadcast chan []byte
 }
 
 func RegisterPlayer(room *Room) *Player {
 	p := &Player{
-		Input:     make(chan []byte),
-		Output:    make(chan []byte),
-		broadcast: make(chan []byte),
-		room:      room,
+		Input:  make(chan []byte),
+		Output: make(chan []byte),
+		room:   room,
 	}
 	room.Register <- p
 	return p
@@ -38,8 +35,6 @@ func (p *Player) inputPump(ctx context.Context) {
 			if err != nil {
 				log.Printf("cant handle Input data: err: {%s} data: {%s}", err, data)
 			}
-		case data := <-p.broadcast:
-			p.Output <- data
 		case <-ctx.Done():
 			return
 		}

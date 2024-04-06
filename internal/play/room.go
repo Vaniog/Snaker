@@ -46,13 +46,17 @@ func (r *Room) Run(ctx context.Context) {
 
 			r.gameLock.RLock()
 			data := r.game.JSON()
-			for _, p := range r.players {
-				p.broadcast <- data
-			}
+			r.broadcast(data)
 			r.gameLock.RUnlock()
 		case <-ctx.Done():
 			return
 		}
+	}
+}
+
+func (r *Room) broadcast(data []byte) {
+	for _, p := range r.players {
+		p.Output <- data
 	}
 }
 
