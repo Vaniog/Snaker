@@ -37,9 +37,6 @@ func (g *Game) MoveSnakes() {
 		g.Field.HandleCollision(s)
 		g.Food.HandleCollision(s)
 		for _, enemy := range g.Snakes {
-			if enemy == s {
-				continue
-			}
 			enemy.HandleCollision(s)
 		}
 	}

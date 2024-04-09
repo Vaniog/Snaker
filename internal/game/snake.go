@@ -55,10 +55,16 @@ func (s *Snake) Grow() {
 }
 
 func (s *Snake) HandleCollision(s2 *Snake) {
-	for _, p := range s.Body {
+	handleLen := len(s.Body)
+	// if handling collision with itself, ignore Head
+	if s2 == s {
+		handleLen--
+	}
+	for _, p := range s.Body[0:handleLen] {
 		if s2.Head() == p {
 			s2.Alive = false
 			s2.Rollback()
+			return
 		}
 	}
 }
