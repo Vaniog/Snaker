@@ -7,6 +7,7 @@ import (
 	"github.com/Vaniog/Snaker/internal/game"
 	"github.com/Vaniog/Snaker/internal/play/event"
 	"log"
+	"slices"
 )
 
 type Player struct {
@@ -67,5 +68,13 @@ func (p *Player) handleInputData(data []byte) error {
 func (p *Player) handleRotate(e event.Rotate) {
 	p.room.gameLock.Lock()
 	p.snake.Rotate(e.Drc)
+	p.room.gameLock.Unlock()
+}
+
+func (p *Player) LeaveRoom() {
+	p.room.gameLock.Lock()
+	p.room.players = slices.DeleteFunc(p.room.players, func(player *Player) bool {
+		return player == p
+	})
 	p.room.gameLock.Unlock()
 }
