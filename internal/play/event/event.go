@@ -2,24 +2,28 @@ package event
 
 import (
 	"encoding/json"
-	"github.com/Vaniog/Snaker/internal/game"
 )
 
 type Type string
 
-const TypeRotate Type = "rotate"
-
 type Event interface{}
 
-type Rotate struct {
-	Drc game.Direction `json:"direction"`
-}
-
-type GameStart struct {
-}
-
-func Parse[E Event](data []byte) (E, error) {
-	var e E
+func Parse[E Event](data []byte) (e E, ok bool) {
 	err := json.Unmarshal(data, &e)
-	return e, err
+	ok = true
+	if err != nil {
+		ok = false
+	}
+	return
+}
+
+func ParseType(data []byte) Type {
+	var e struct {
+		Type Type `json:"event"`
+	}
+	err := json.Unmarshal(data, &e)
+	if err != nil {
+		return ""
+	}
+	return e.Type
 }

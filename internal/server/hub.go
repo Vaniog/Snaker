@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"github.com/Vaniog/Snaker/internal/game"
 	"github.com/Vaniog/Snaker/internal/play"
 	"github.com/gorilla/websocket"
 	"log"
@@ -10,32 +9,32 @@ import (
 
 type HubID int64
 type Hub struct {
-	ID   HubID
-	Room *play.Room
+	ID    HubID
+	lobby *play.Lobby
 
-	Register chan *Client
+	register chan *Client
 }
 
 func newHub() *Hub {
 	return &Hub{
-		Room:     play.NewRoom(game.NewGame(game.DefaultOptions)),
-		Register: make(chan *Client),
+		lobby:    play.NewLobby(),
+		register: make(chan *Client),
 	}
 }
 
 func (h *Hub) RegisterClient(conn *websocket.Conn) *Client {
 	c := &Client{conn: conn}
-	h.Register <- c
+	h.register <- c
 	return c
 }
 
 func (h *Hub) Run(ctx context.Context) {
-	log.Printf("StartTime new hub: %d", h.ID)
-	go h.Room.Run(ctx)
+	log.Printf("Start new hub: %d", h.ID)
+	go h.lobby.Run(ctx)
 	for {
 		select {
-		case c := <-h.Register:
-			c.player = play.RegisterPlayer(h.Room)
+		case c := <-h.register:
+			c.player = h.lobby.RegisterPlayer()
 			go c.readPump(ctx)
 			go c.writePump(ctx)
 		}

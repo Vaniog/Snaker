@@ -6,23 +6,21 @@ type Options struct {
 	FPS           int
 	FrameDuration time.Duration
 	SnakeLen      int
+	SnakesAmount  int
 	Duration      time.Duration
 	Field         Field
 }
 
-var DefaultOptions = NewOptions(
-	10,
-	5,
-	Field{W: 40, H: 40},
-	10*time.Minute,
-)
+const defaultFps = 10
 
-func NewOptions(fps, snakeLen int, field Field, dur time.Duration) Options {
-	return Options{
-		fps,
-		time.Second / time.Duration(fps),
-		snakeLen,
-		dur,
-		field,
-	}
+var DefaultOptions = Options{
+	FPS:           defaultFps,
+	FrameDuration: time.Second / defaultFps,
+	SnakeLen:      5,
+	SnakesAmount:  2,
+	Duration:      time.Minute * 10,
+	Field: Field{
+		W: 40,
+		H: 40,
+	},
 }

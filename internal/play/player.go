@@ -2,79 +2,47 @@ package play
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"github.com/Vaniog/Snaker/internal/game"
-	"github.com/Vaniog/Snaker/internal/play/event"
-	"log"
-	"slices"
 )
 
 type Player struct {
-	room  *Room
-	snake *game.Snake
-
+	events chan<- PlayerEvent
 	Input  chan []byte
 	Output chan []byte
 }
 
-func RegisterPlayer(room *Room) *Player {
+func newPlayer(events chan<- PlayerEvent) *Player {
 	p := &Player{
+		events: events,
 		Input:  make(chan []byte),
 		Output: make(chan []byte),
-		room:   room,
 	}
-	room.Register <- p
 	return p
 }
 
 func (p *Player) inputPump(ctx context.Context) {
 	for {
 		select {
-		case data := <-p.Input:
-			err := p.handleInputData(data)
-			if err != nil {
-				log.Printf("cant handle Input data: err: {%s} data: {%s}", err, data)
+		case data, ok := <-p.Input:
+			if !ok {
+				return
 			}
+			p.events <- PlayerEvent{p, data}
 		case <-ctx.Done():
 			return
 		}
 	}
 }
 
-func (p *Player) handleInputData(data []byte) error {
-	var e struct {
-		Type event.Type `json:"event"`
-	}
+func (p *Player) Disconnect(ctx context.Context) {
+	go p.fakeReadPump(ctx)
+}
 
-	err := json.Unmarshal(data, &e)
-	if err != nil {
-		return err
-	}
-
-	switch e.Type {
-	case event.TypeRotate:
-		eRotate, err := event.Parse[event.Rotate](data)
-		if err != nil {
-			return err
+func (p *Player) fakeReadPump(ctx context.Context) {
+	for {
+		select {
+		case <-p.Output:
+		case <-ctx.Done():
+			return
 		}
-		p.handleRotate(eRotate)
-	default:
-		return fmt.Errorf("unknown event type: %s", e.Type)
 	}
-	return nil
-}
-
-func (p *Player) handleRotate(e event.Rotate) {
-	p.room.gameLock.Lock()
-	p.snake.Rotate(e.Drc)
-	p.room.gameLock.Unlock()
-}
-
-func (p *Player) LeaveRoom() {
-	p.room.gameLock.Lock()
-	p.room.players = slices.DeleteFunc(p.room.players, func(player *Player) bool {
-		return player == p
-	})
-	p.room.gameLock.Unlock()
 }

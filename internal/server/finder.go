@@ -27,7 +27,7 @@ func (hr *Repository) FindHub() HubID {
 	defer hr.lock.Unlock()
 
 	for id, h := range hr.hubs {
-		if h.Room.IsOpen() {
+		if h.lobby.IsOpen() {
 			return id
 		}
 	}

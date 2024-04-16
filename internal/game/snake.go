@@ -23,7 +23,7 @@ func NewSnake(game *Game, head Point, drc Direction, len int) *Snake {
 }
 
 func (s *Snake) Rotate(drc Direction) {
-	if s.Drc.Opposite() != drc {
+	if s.Head().Move(drc) != s.Body[len(s.Body)-2] {
 		s.Drc = drc
 	}
 }

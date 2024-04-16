@@ -47,7 +47,7 @@ func (c *Client) readPump(ctx context.Context) {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
 			}
-			c.player.LeaveRoom()
+			c.player.Disconnect(ctx)
 			return
 		}
 
