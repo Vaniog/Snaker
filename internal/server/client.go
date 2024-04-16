@@ -27,7 +27,7 @@ type Client struct {
 	player *play.Player
 }
 
-// readPump handles pongs and rotations
+// readPump handles pongs
 func (c *Client) readPump(ctx context.Context) {
 	defer func() {
 		_ = c.conn.Close()
@@ -72,7 +72,7 @@ func initPongs(conn *websocket.Conn) {
 	})
 }
 
-// writePump handles pings and broadcasts messages from Client.broadcast
+// writePump handles pings and broadcasts messages from Client.player.Output
 func (c *Client) writePump(ctx context.Context) {
 	pongTicker := time.NewTicker(pingPeriod)
 	defer func() {

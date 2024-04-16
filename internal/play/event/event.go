@@ -6,9 +6,11 @@ import (
 
 type Type string
 
-type Event interface{}
+type Event struct {
+	Type `json:"event"`
+}
 
-func Parse[E Event](data []byte) (e E, ok bool) {
+func Parse[E any](data []byte) (e E, ok bool) {
 	err := json.Unmarshal(data, &e)
 	ok = true
 	if err != nil {
@@ -26,4 +28,9 @@ func ParseType(data []byte) Type {
 		return ""
 	}
 	return e.Type
+}
+
+func Bytes(e any) []byte {
+	data, _ := json.Marshal(e)
+	return data
 }

@@ -10,7 +10,8 @@ import (
 const typeRotate event.Type = "rotate"
 
 type rotate struct {
-	Drc game.Direction `json:"direction"`
+	Type event.Type     `json:"event"`
+	Drc  game.Direction `json:"direction"`
 }
 
 type PlayerEvent struct {

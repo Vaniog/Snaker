@@ -34,7 +34,7 @@ func (h *Hub) Run(ctx context.Context) {
 	for {
 		select {
 		case c := <-h.register:
-			c.player = h.lobby.RegisterPlayer()
+			c.player = h.lobby.RegisterPlayer(ctx)
 			go c.readPump(ctx)
 			go c.writePump(ctx)
 		}

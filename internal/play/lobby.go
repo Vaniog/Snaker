@@ -2,7 +2,6 @@ package play
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/Vaniog/Snaker/internal/game"
 	"github.com/Vaniog/Snaker/internal/play/event"
 	"slices"
@@ -10,17 +9,6 @@ import (
 
 const typeUpdateOptions event.Type = "update_options"
 const typeGameStart event.Type = "game_start"
-
-func gameStartEvent() []byte {
-	e := struct {
-		Type event.Type `json:"event"`
-	}{
-		Type: typeGameStart,
-	}
-
-	data, _ := json.Marshal(e)
-	return data
-}
 
 type updateOptions struct {
 	opts game.Options
@@ -44,9 +32,10 @@ func NewLobby() *Lobby {
 	}
 }
 
-func (lb *Lobby) RegisterPlayer() *Player {
+func (lb *Lobby) RegisterPlayer(ctx context.Context) *Player {
 	p := newPlayer(lb.events)
 	lb.register <- p
+	go p.inputPump(ctx)
 	return p
 }
 
