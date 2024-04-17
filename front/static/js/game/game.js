@@ -1,5 +1,8 @@
 let socket
 
+const HTTP = "http"
+const WS = "ws"
+
 function runGame(url) {
     // TODO убрать
     try {

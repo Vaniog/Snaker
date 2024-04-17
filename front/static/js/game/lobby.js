@@ -23,9 +23,6 @@ class OptionsManager {
 
 manager = new OptionsManager()
 
-const HTTP = "http"
-const WS = "ws"
-
 class Lobby {
     run(id) {
         this.socket = new WebSocket(`${WS}://${window.location.host}/ws/play/${id}`)
