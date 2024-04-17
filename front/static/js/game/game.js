@@ -1,9 +1,6 @@
 let socket
 
-const HTTP = "http"
-const WS = "ws"
-
-function connectSocket(url) {
+function runGame(url) {
     // TODO убрать
     try {
         socket.close()
@@ -53,11 +50,10 @@ document.addEventListener('keydown', function (event) {
 });
 
 function createGame() {
-    let id = 0
     fetch(`${HTTP}://${window.location.host}/find-hub/`)
         .then(r => r.json())
         .then(data => {
-            connectSocket(`ws/play/${data.id}`)
+            runGame(`ws/play/${data.id}`)
         })
 }
 

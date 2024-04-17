@@ -37,6 +37,8 @@ func (h *Hub) Run(ctx context.Context) {
 			c.player = h.lobby.RegisterPlayer(ctx)
 			go c.readPump(ctx)
 			go c.writePump(ctx)
+		case <-ctx.Done():
+			return
 		}
 	}
 }

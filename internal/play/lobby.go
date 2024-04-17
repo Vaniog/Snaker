@@ -11,7 +11,8 @@ const typeUpdateOptions event.Type = "update_options"
 const typeGameStart event.Type = "game_start"
 
 type updateOptions struct {
-	opts game.Options
+	Type event.Type   `json:"event"`
+	Opts game.Options `json:"options"`
 }
 
 type Lobby struct {
@@ -60,7 +61,7 @@ func (lb *Lobby) Run(ctx context.Context) {
 			switch event.ParseType(data) {
 			case typeUpdateOptions:
 				if eUpdateOpts, ok := event.Parse[updateOptions](data); ok {
-					lb.opts = eUpdateOpts.opts
+					lb.opts = eUpdateOpts.Opts
 				}
 			case typeGameStart:
 				g := newGame(lb)

@@ -5,7 +5,7 @@ class Field {
         this.colors = {
             default: '#ffffff' // Default color is white
         };
-        this.cellSize = 15; // Adjust as needed
+        this.cellSize = 13; // Adjust as needed
     }
 
     visualize(data) {

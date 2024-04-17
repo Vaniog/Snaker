@@ -20,40 +20,37 @@ type PlayerEvent struct {
 }
 
 type Game struct {
+	*game.Game
 	players map[*Player]*game.Snake
-	game    *game.Game
 
 	events chan PlayerEvent
 }
 
 func newGame(lobby *Lobby) *Game {
 	g := &Game{
+		Game:    game.NewGame(lobby.opts),
 		events:  lobby.events,
 		players: make(map[*Player]*game.Snake, len(lobby.players)),
-		game:    game.NewGame(lobby.opts),
 	}
 	for _, p := range lobby.players {
-		g.players[p] = g.game.RegisterSnake()
+		g.players[p] = g.RegisterSnake()
 	}
 	return g
 }
 
 func (g *Game) Run(ctx context.Context) {
-	gameTicker := time.NewTicker(g.game.Opts.FrameDuration)
+	gameTicker := time.NewTicker(g.Opts.FrameDuration)
 	defer gameTicker.Stop()
-	g.game.Start()
+	g.Start()
 
-	// TODO move to better place
-	for p := range g.players {
-		go p.inputPump(ctx)
-	}
+	g.broadcast(event.Bytes(event.Event{Type: typeGameStart}))
 
 	for {
 		for {
 			select {
 			case <-gameTicker.C:
-				g.game.Update()
-				data := g.game.JSON()
+				g.Update()
+				data := g.JSON()
 				g.broadcast(data)
 			case ep := <-g.events:
 				p := ep.player
