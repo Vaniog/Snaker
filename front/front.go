@@ -14,14 +14,12 @@ var static embed.FS
 
 func init() {
 	err := godotenv.Load()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	useEmbed := true
-	if envDebug, has := os.LookupEnv("DEBUG"); has {
-		if envDebug == "True" {
-			useEmbed = false
+	if err == nil {
+		if envDebug, has := os.LookupEnv("DEBUG"); has {
+			if envDebug == "True" {
+				useEmbed = false
+			}
 		}
 	}
 
