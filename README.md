@@ -7,7 +7,7 @@ Online multiplayer classic snake game written with Go
 Simplest method to run is:
 
 ```
-go mod donwload
+go mod download
 go run main.go
 ```
 
