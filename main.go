@@ -1,12 +1,22 @@
 package main
 
 import (
-	_ "github.com/Vaniog/Snaker/front"
-	_ "github.com/Vaniog/Snaker/internal/server"
+	front "github.com/Vaniog/Snaker/front"
+	backend "github.com/Vaniog/Snaker/internal/server"
+	gin "github.com/gin-gonic/gin"
 	"log"
-	"net/http"
 )
 
 func main() {
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	r := gin.Default()
+	setupRouter(r)
+
+	if err := r.Run(":8000"); err != nil {
+		log.Printf("shutdown: %v", err)
+	}
+}
+
+func setupRouter(r *gin.Engine) {
+	front.SetupRouter(r)
+	backend.SetupRouter(r)
 }

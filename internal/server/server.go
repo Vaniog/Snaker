@@ -1,12 +1,11 @@
 package server
 
 import (
-	"encoding/json"
+	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 var hubRepo *Repository
@@ -16,31 +15,24 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func init() {
+func SetupRouter(r *gin.Engine) {
 	hubRepo = NewHubRepository()
 
-	http.HandleFunc("GET /find-hub/", ServeFindHub)
-	http.HandleFunc("GET /ws/play/", ServePlay)
+	r.GET("/find-hub/", HandleFindHub)
+	r.GET("/ws/play/:id", HandlePlay)
 }
 
-func ServeFindHub(w http.ResponseWriter, _ *http.Request) {
+func HandleFindHub(c *gin.Context) {
 	id := hubRepo.FindHub()
-	resp := map[string]string{
+	resp := gin.H{
 		"id": strconv.FormatInt(int64(id), 10),
 	}
 
-	data, err := json.Marshal(resp)
-	if err != nil {
-		return
-	}
-	_, err = w.Write(data)
-	if err != nil {
-		return
-	}
+	c.JSON(http.StatusOK, resp)
 }
 
-func ServePlay(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.ParseInt(strings.TrimPrefix(r.URL.Path, "/ws/play/"), 10, 64)
+func HandlePlay(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		return
 	}
@@ -49,7 +41,7 @@ func ServePlay(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	conn, err := upgrader.Upgrade(w, r, nil)
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Println(err)
 		return

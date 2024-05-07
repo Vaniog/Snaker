@@ -2,6 +2,7 @@ package front
 
 import (
 	"embed"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"io/fs"
 	"log"
@@ -12,7 +13,7 @@ import (
 //go:embed static/*
 var static embed.FS
 
-func init() {
+func SetupRouter(r *gin.Engine) {
 	err := godotenv.Load()
 	useEmbed := true
 	if err == nil {
@@ -34,5 +35,5 @@ func init() {
 		staticFS = http.Dir("front/static")
 	}
 
-	http.Handle("GET /", http.FileServer(staticFS))
+	r.NoRoute(gin.WrapH(http.FileServer(staticFS)))
 }
