@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	front "github.com/Vaniog/Snaker/front"
 	backend "github.com/Vaniog/Snaker/internal/server"
 	gin "github.com/gin-gonic/gin"
@@ -11,7 +13,10 @@ func main() {
 	r := gin.Default()
 	setupRouter(r)
 
-	if err := r.Run(":8000"); err != nil {
+	port := flag.String("p", "8000", "port")
+	flag.Parse()
+
+	if err := r.Run(fmt.Sprintf(":%s", *port)); err != nil {
 		log.Printf("shutdown: %v", err)
 	}
 }

@@ -14,7 +14,7 @@ func newPlayer(events chan<- PlayerEvent) *Player {
 	p := &Player{
 		events: events,
 		Input:  make(chan []byte),
-		Output: make(chan []byte),
+		Output: make(chan []byte, 1),
 	}
 	return p
 }
@@ -26,6 +26,7 @@ func (p *Player) inputPump(ctx context.Context) {
 			if !ok {
 				return
 			}
+
 			p.events <- PlayerEvent{p, data}
 		case <-ctx.Done():
 			return
@@ -34,7 +35,6 @@ func (p *Player) inputPump(ctx context.Context) {
 }
 
 func (p *Player) Disconnect(ctx context.Context) {
-	go p.fakeReadPump(ctx)
 }
 
 func (p *Player) fakeReadPump(ctx context.Context) {

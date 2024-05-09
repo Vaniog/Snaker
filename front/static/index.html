@@ -8,11 +8,31 @@
     <link href="css/styles.css" rel="stylesheet">
     <title>Snaker</title>
 </head>
+<style>
+    .arrowBtn {
+        width: 3.5em;
+        height: 3.5em;
+    }
+</style>
 
 <body data-bs-theme="dark">
 <div class="d-flex flex-column align-items-center mt-5">
     <canvas id="canvas"></canvas>
-    <button id="playBtn" class="btn btn-primary mt-5">GO</button>
+    <div id="controls">
+        <div class="arrow-buttons mt-5 d-flex flex-column align-items-center">
+            <button id="arrowUp" class="arrowBtn rounded-circle btn btn-primary">↑</button>
+            <div>
+                <button id="arrowLeft" class="arrowBtn rounded-circle btn btn-primary">←</button>
+                <button id="arrowRight" class="arrowBtn rounded-circle btn btn-primary ms-4">→</button>
+            </div>
+            <button id="arrowDown" class="arrowBtn rounded-circle btn btn-primary">↓</button>
+        </div>
+    </div>
+
+    <div class="btn-group-vertical">
+        <button id="soloBtn" class="btn btn-primary mt-5">SOLO</button>
+        <button id="duoBtn" class="btn btn-primary">DUO</button>
+    </div>
 </div>
 </body>
 

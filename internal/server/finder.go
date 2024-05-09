@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"errors"
+	"github.com/Vaniog/Snaker/internal/game"
 	"math/rand"
 	"sync"
 	"time"
@@ -10,30 +11,30 @@ import (
 
 const hubLifetime = 20 * time.Minute
 
-type Repository struct {
+type HubRepository struct {
 	hubs map[HubID]*Hub
 	lock sync.RWMutex
 }
 
-func NewHubRepository() *Repository {
-	hr := Repository{
+func NewHubRepository() *HubRepository {
+	hr := HubRepository{
 		hubs: make(map[HubID]*Hub),
 	}
 	return &hr
 }
 
-func (hr *Repository) FindHub() HubID {
+func (hr *HubRepository) FindHub(opts game.Options) HubID {
 	hr.lock.Lock()
 	defer hr.lock.Unlock()
 
 	for id, h := range hr.hubs {
-		if h.lobby.IsOpen() {
+		if h.lobby.IsOpen() && h.lobby.Opts == opts {
 			return id
 		}
 	}
 
 	id := HubID(rand.Int63())
-	h := newHub()
+	h := newHub(opts)
 	h.ID = id
 	hr.hubs[id] = h
 
@@ -49,12 +50,12 @@ func (hr *Repository) FindHub() HubID {
 	return id
 }
 
-func (hr *Repository) GetHubById(id HubID) (*Hub, error) {
+func (hr *HubRepository) GetHubById(id HubID) (*Hub, error) {
 	hr.lock.RLock()
 	defer hr.lock.RUnlock()
 
-	h, ok := hr.hubs[id]
-	if !ok {
+	h, has := hr.hubs[id]
+	if !has {
 		return nil, errors.New("hub not found")
 	}
 	return h, nil

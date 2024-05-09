@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"github.com/Vaniog/Snaker/internal/game"
 	"github.com/Vaniog/Snaker/internal/play"
 	"github.com/gorilla/websocket"
 	"log"
@@ -15,9 +16,9 @@ type Hub struct {
 	register chan *Client
 }
 
-func newHub() *Hub {
+func newHub(opts game.Options) *Hub {
 	return &Hub{
-		lobby:    play.NewLobby(),
+		lobby:    play.NewLobby(opts),
 		register: make(chan *Client),
 	}
 }

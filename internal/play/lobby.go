@@ -16,7 +16,7 @@ type updateOptions struct {
 }
 
 type Lobby struct {
-	opts    game.Options
+	Opts    game.Options
 	players []*Player
 
 	register   chan *Player
@@ -24,10 +24,10 @@ type Lobby struct {
 	events     chan PlayerEvent
 }
 
-func NewLobby() *Lobby {
+func NewLobby(opts game.Options) *Lobby {
 	return &Lobby{
 		events:   make(chan PlayerEvent),
-		opts:     game.DefaultOptions,
+		Opts:     opts,
 		players:  nil,
 		register: make(chan *Player),
 	}
@@ -46,7 +46,7 @@ func (lb *Lobby) Run(ctx context.Context) {
 		case p := <-lb.register:
 			lb.players = append(lb.players, p)
 			// TODO make better
-			if len(lb.players) == lb.opts.SnakesAmount {
+			if len(lb.players) == lb.Opts.SnakesAmount {
 				g := newGame(lb)
 				go g.Run(ctx)
 				return
@@ -61,7 +61,7 @@ func (lb *Lobby) Run(ctx context.Context) {
 			switch event.ParseType(data) {
 			case typeUpdateOptions:
 				if eUpdateOpts, ok := event.Parse[updateOptions](data); ok {
-					lb.opts = eUpdateOpts.Opts
+					lb.Opts = eUpdateOpts.Opts
 				}
 			case typeGameStart:
 				g := newGame(lb)
@@ -75,5 +75,5 @@ func (lb *Lobby) Run(ctx context.Context) {
 }
 
 func (lb *Lobby) IsOpen() bool {
-	return len(lb.players) != lb.opts.SnakesAmount
+	return len(lb.players) != lb.Opts.SnakesAmount
 }

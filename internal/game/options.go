@@ -9,11 +9,12 @@ type Options struct {
 	SnakesAmount  int
 	Duration      time.Duration
 	Field         Field
+	BotsAmount    int
 }
 
 const defaultFps = 10
 
-var DefaultOptions = Options{
+var DuoOptions = Options{
 	FPS:           defaultFps,
 	FrameDuration: time.Second / defaultFps,
 	SnakeLen:      5,
@@ -23,4 +24,18 @@ var DefaultOptions = Options{
 		W: 40,
 		H: 40,
 	},
+	BotsAmount: 0,
+}
+
+var SoloOptions = Options{
+	FPS:           defaultFps,
+	FrameDuration: time.Second / defaultFps,
+	SnakeLen:      5,
+	SnakesAmount:  1,
+	Duration:      time.Minute * 10,
+	Field: Field{
+		W: 40,
+		H: 40,
+	},
+	BotsAmount: 1,
 }

@@ -14,6 +14,9 @@ function runGame(url) {
     socket.onmessage = (event) => {
         gameUpdate(JSON.parse(event.data))
     }
+    socket.ondisconnect = () => {
+        document.getElementById("playBtn").style.visibility = "visible"
+    }
 }
 
 function rotate(direction) {
@@ -52,17 +55,26 @@ document.addEventListener('keydown', function (event) {
     }
 });
 
-function createGame() {
-    fetch(`${HTTP}://${window.location.host}/find-hub/`)
+function createGame(mode) {
+    fetch(`${HTTP}://${window.location.host}/find-hub/${mode}`)
         .then(r => r.json())
         .then(data => {
             runGame(`ws/play/${data.id}`)
         })
 }
 
-document.getElementById("playBtn")
-    .addEventListener("click", () => createGame())
-
+document.getElementById("soloBtn")
+    .addEventListener("click", () => {
+        document.getElementById("soloBtn").style.visibility = "hidden"
+        document.getElementById("duoBtn").style.visibility = "hidden"
+        createGame("solo")
+    })
+document.getElementById("duoBtn")
+    .addEventListener("click", () => {
+        document.getElementById("soloBtn").style.visibility = "hidden"
+        document.getElementById("duoBtn").style.visibility = "hidden"
+        createGame("duo")
+    })
 
 function gameUpdate(data) {
     loadingAnimation.stop()
@@ -89,3 +101,21 @@ function gameUpdate(data) {
 
     field.visualize(fieldData)
 }
+
+
+document.getElementById("arrowUp")
+    .addEventListener("click", () => {
+        rotate("Up")
+    })
+document.getElementById("arrowLeft")
+    .addEventListener("click", () => {
+        rotate("Left")
+    })
+document.getElementById("arrowDown")
+    .addEventListener("click", () => {
+        rotate("Down")
+    })
+document.getElementById("arrowRight")
+    .addEventListener("click", () => {
+        rotate("Right")
+    })

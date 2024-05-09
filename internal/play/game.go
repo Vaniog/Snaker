@@ -28,7 +28,7 @@ type Game struct {
 
 func newGame(lobby *Lobby) *Game {
 	g := &Game{
-		Game:    game.NewGame(lobby.opts),
+		Game:    game.NewGame(lobby.Opts),
 		events:  lobby.events,
 		players: make(map[*Player]*game.Snake, len(lobby.players)),
 	}
@@ -43,34 +43,71 @@ func (g *Game) Run(ctx context.Context) {
 	defer gameTicker.Stop()
 	g.Start()
 
+	for range g.Opts.BotsAmount {
+		g.addBot(ctx)
+	}
+
 	g.broadcast(event.Bytes(event.Event{Type: typeGameStart}))
 
 	for {
-		for {
-			select {
-			case <-gameTicker.C:
-				g.Update()
-				data := g.JSON()
-				g.broadcast(data)
-			case ep := <-g.events:
-				p := ep.player
-				data := ep.bytes
+		if g.allDead() {
+			return
+		}
 
-				switch event.ParseType(data) {
-				case typeRotate:
-					if eRotate, ok := event.Parse[rotate](data); ok {
-						g.players[p].Rotate(eRotate.Drc)
-					}
+		select {
+		case <-gameTicker.C:
+			g.Update()
+			data := g.JSON()
+			g.broadcast(data)
+		case ep := <-g.events:
+			p := ep.player
+			data := ep.bytes
+
+			switch event.ParseType(data) {
+			case typeRotate:
+				if eRotate, ok := event.Parse[rotate](data); ok {
+					g.players[p].Rotate(eRotate.Drc)
 				}
-			case <-ctx.Done():
-				return
 			}
+		case <-ctx.Done():
+			return
 		}
 	}
 }
 
-func (g *Game) broadcast(data []byte) {
-	for p := range g.players {
-		p.Output <- data
+func (g *Game) allDead() bool {
+	for _, s := range g.players {
+		if s.Alive {
+			return false
+		}
 	}
+	return true
+}
+
+func (g *Game) broadcast(data []byte) {
+	var toDelete []*Player
+
+	for p := range g.players {
+		select {
+		case p.Output <- data:
+		default:
+			toDelete = append(toDelete, p)
+		}
+	}
+
+	for _, p := range toDelete {
+		delete(g.players, p)
+	}
+}
+
+func (g *Game) addBot(ctx context.Context) {
+	bot := Bot{
+		Player: newPlayer(g.events),
+		game:   g,
+		snake:  g.RegisterSnake(),
+	}
+	g.players[bot.Player] = bot.snake
+	go bot.fakeReadPump(ctx)
+	go bot.Player.inputPump(ctx)
+	go bot.Run(ctx)
 }

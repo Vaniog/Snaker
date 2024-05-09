@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/Vaniog/Snaker/internal/game"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"log"
@@ -8,7 +9,7 @@ import (
 	"strconv"
 )
 
-var hubRepo *Repository
+var hubRepo *HubRepository
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -18,12 +19,23 @@ var upgrader = websocket.Upgrader{
 func SetupRouter(r *gin.Engine) {
 	hubRepo = NewHubRepository()
 
-	r.GET("/find-hub/", HandleFindHub)
+	r.GET("/find-hub/:mod", HandleFindHub)
 	r.GET("/ws/play/:id", HandlePlay)
 }
 
 func HandleFindHub(c *gin.Context) {
-	id := hubRepo.FindHub()
+	var opts game.Options
+	switch c.Param("mod") {
+	case "solo":
+		opts = game.SoloOptions
+	case "duo":
+		opts = game.DuoOptions
+	default:
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	id := hubRepo.FindHub(opts)
 	resp := gin.H{
 		"id": strconv.FormatInt(int64(id), 10),
 	}

@@ -30,16 +30,18 @@ func (b *Bot) Update() {
 	if len(b.snake.Body) < 3 {
 		return
 	}
-	goodDrc := b.snake.Drc
-	ds := map[game.Direction]int{
-		game.Up:    0,
-		game.Right: 0,
-		game.Down:  0,
-		game.Left:  0,
+	ds := []game.Direction{
+		game.Up,
+		game.Right,
+		game.Down,
+		game.Left,
 	}
 
-	for drc := range ds {
-		goodDrc = drc
+	bestDrc := b.snake.Drc
+	bestScore := -1
+	for _, drc := range ds {
+		score := 0
+
 		var newHead = b.game.Field.ToBounds(b.snake.Head().Move(drc))
 		good := true
 		for _, s := range b.game.Snakes {
@@ -50,13 +52,25 @@ func (b *Bot) Update() {
 			for _, p := range s.Body[0:handleLen] {
 				if p == newHead {
 					good = false
+					break
 				}
 			}
 		}
-		if good {
-			break
+
+		if !good {
+			continue
+		}
+		if drc == b.snake.Drc {
+			score += 1
+		}
+		if drc == game.ApproxDrcBetween(b.snake.Head(), b.game.Food.Point) {
+			score += 2
+		}
+		if score > bestScore {
+			bestDrc = drc
+			bestScore = score
 		}
 	}
 
-	b.Player.Input <- event.Bytes(rotate{Type: typeRotate, Drc: goodDrc})
+	b.Player.Input <- event.Bytes(rotate{Type: typeRotate, Drc: bestDrc})
 }

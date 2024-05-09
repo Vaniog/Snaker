@@ -48,3 +48,29 @@ func (d Direction) Opposite() Direction {
 	log.Printf("tried to move in unknown direction: %s", d)
 	return d
 }
+
+func ApproxDrcBetween(p1, p2 Point) Direction {
+	dx := p2.X - p1.X
+	dy := p2.Y - p1.Y
+
+	if abs(dx) > abs(dy) {
+		if dx > 0 {
+			return Right
+		} else {
+			return Left
+		}
+	} else {
+		if dy > 0 {
+			return Down
+		} else {
+			return Up
+		}
+	}
+}
+
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}

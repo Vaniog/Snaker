@@ -51,7 +51,11 @@ func (c *Client) readPump(ctx context.Context) {
 			return
 		}
 
-		c.player.Input <- data
+		select {
+		case c.player.Input <- data:
+		default:
+			return
+		}
 	}
 }
 
