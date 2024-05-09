@@ -1,7 +1,7 @@
 let socket
 
-const HTTP = "http"
-const WS = "ws"
+const HTTP = window.location.protocol
+const WS = window.location.protocol.split(":")[0] === "http" ? "ws" : "wss"
 
 function runGame(url) {
     // TODO убрать
@@ -56,7 +56,7 @@ document.addEventListener('keydown', function (event) {
 });
 
 function createGame(mode) {
-    fetch(`${HTTP}://${window.location.host}/find-hub/${mode}`)
+    fetch(`${window.location.protocol}/find-hub/${mode}`)
         .then(r => r.json())
         .then(data => {
             runGame(`ws/play/${data.id}`)
@@ -65,15 +65,15 @@ function createGame(mode) {
 
 document.getElementById("soloBtn")
     .addEventListener("click", () => {
-        document.getElementById("soloBtn").style.visibility = "hidden"
-        document.getElementById("duoBtn").style.visibility = "hidden"
         createGame("solo")
+        document.getElementById("soloBtn").remove()
+        document.getElementById("duoBtn").remove()
     })
 document.getElementById("duoBtn")
     .addEventListener("click", () => {
-        document.getElementById("soloBtn").style.visibility = "hidden"
-        document.getElementById("duoBtn").style.visibility = "hidden"
         createGame("duo")
+        document.getElementById("soloBtn").remove()
+        document.getElementById("duoBtn").remove()
     })
 
 function gameUpdate(data) {
@@ -131,3 +131,7 @@ window.mobileCheck = function () {
     return check;
 };
 document.getElementById("controls").style.visibility = "hidden"
+if (!window.mobileCheck()) {
+    document.getElementById("controls").remove()
+
+}
