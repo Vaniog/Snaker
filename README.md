@@ -1,8 +1,8 @@
 # Snaker
 
-
-
 Online multiplayer classic snake game written with Go
+
+You can play duo or solo with bot
 
 Simplest method to run is:
 
@@ -11,5 +11,4 @@ go mod download
 go run main.go
 ```
 
-https://github.com/Vaniog/Snaker/assets/79862574/1ea544d7-a3c9-48f5-86e3-a472e777d727
-
+[solo-demo.webm](https://github.com/Vaniog/Snaker/assets/79862574/da30656c-dd77-468c-9cc2-d3043b73563c)
