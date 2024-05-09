@@ -1,4 +1,5 @@
 # Snaker
+Running: [snaker.vaniog.ru](https://snaker.vaniog.ru)
 
 Online multiplayer classic snake game written with Go
 
