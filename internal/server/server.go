@@ -21,6 +21,9 @@ func SetupRouter(r *gin.Engine) {
 
 	r.GET("/find-hub/:mod", HandleFindHub)
 	r.GET("/ws/play/:id", HandlePlay)
+	r.GET("/rr", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "https://www.youtube.com/watch?v=xvFZjo5PgG0")
+	})
 }
 
 func HandleFindHub(c *gin.Context) {
